@@ -3,6 +3,8 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { NavController, ViewController } from 'ionic-angular';
 
 import { Camera } from 'ionic-native';
+import { Crop } from '@ionic-native/crop';
+
 
 /*
   Generated class for the ItemCreate page.
@@ -23,7 +25,7 @@ export class ItemCreatePage {
 
   form: FormGroup;
 
-  constructor(public navCtrl: NavController, public viewCtrl: ViewController, formBuilder: FormBuilder) {
+  constructor(public navCtrl: NavController, public viewCtrl: ViewController, formBuilder: FormBuilder, private crop: Crop) {
     this.form = formBuilder.group({
       profilePic: [''],
       name: ['', Validators.required],
@@ -46,7 +48,8 @@ export class ItemCreatePage {
         targetWidth: 96,
         targetHeight: 96
       }).then((data) => {
-        this.form.patchValue({ 'profilePic': 'data:image/jpg;base64,' +  data });
+
+        this.form.patchValue({ 'profilePic': 'data:image/jpg;base64,' + data });
       }, (err) => {
         alert('Unable to take photo');
       })
@@ -57,7 +60,12 @@ export class ItemCreatePage {
 
   processWebImage(event) {
     let input = this.fileInput.nativeElement;
-
+    /*crop here*/
+    this.crop.crop(input, { quality: 75 })
+      .then(
+      newImage => console.log("new image path is: " + newImage),
+      error => console.error("Error cropping image", error)
+      );
     var reader = new FileReader();
     reader.onload = (readerEvent) => {
       input.parentNode.removeChild(input);
@@ -85,7 +93,7 @@ export class ItemCreatePage {
    * back to the presenter.
    */
   done() {
-    if(!this.form.valid) { return; }
+    if (!this.form.valid) { return; }
     this.viewCtrl.dismiss(this.form.value);
   }
 }
